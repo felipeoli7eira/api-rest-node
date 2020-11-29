@@ -16,13 +16,13 @@ const Database = {
 }
 
 /** route */
-app.get( "/games", (req, res) => {
+app.get( "/games", (req, res) => { /** all */
 
     res.statusCode = 200
     res.json( Database.games )
 } )
 
-app.get( "/game/:id", (req, res) => {
+app.get( "/game/:id", (req, res) => { /** by id */
 
     const {id} = req.params
 
@@ -70,6 +70,83 @@ app.get( "/game/:id", (req, res) => {
             }
         )
         return true
+    }
+} )
+
+app.post( "/game", (req, res) => { /** create resource */
+
+    const {name, year, price} = req.body
+
+    if( name != undefined && year != undefined && price != undefined )
+    {
+        if( name != "" && year != "" && price != "" )
+        {
+            if( !Number.isNaN( year ) && year.length === 4 && !Number.isNaN( price ) )
+            {
+                const _id = Date.now()
+                let _year = parseInt( year )
+                let _price = parseFloat( price )
+
+                Database.games.push(
+                    {
+                        id: _id,
+                        name,
+                        year: _year,
+                        price: _price
+                    }
+                )
+
+                res.statusCode = 201 /** Recurso criado */
+                res.json(
+                    {
+                        message: "Recurso criado",
+                        success: true,
+                        statusCode: 201,
+                        data: Database.games.find( game => game.id === _id )
+                    }
+                )
+                return true
+            }
+            else
+            {
+                res.statusCode = 400 /** Requisição mau feita */
+                res.json(
+                    {
+                        message: "As informações passadas não atendem aos requisitos",
+                        success: false,
+                        statusCode: 400,
+                        data: null
+                    }
+                )
+                return false
+            }
+        }
+        else
+        {
+            res.statusCode = 400 /** Requisição mau feita */
+            res.json(
+                {
+                    message: "Uma ou mais informações obrigatórias não foram passadas",
+                    success: false,
+                    statusCode: 400,
+                    data: null
+                }
+            )
+            return false
+        }
+    }
+    else
+    {
+        res.statusCode = 400 /** Requisição mau feita */
+        res.json(
+            {
+                message: "Nome, Ano e Preço são obrigatórios",
+                success: false,
+                statusCode: 400,
+                data: null
+            }
+        )
+        return false
     }
 } )
 
