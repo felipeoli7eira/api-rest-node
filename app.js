@@ -22,7 +22,7 @@ app.get( "/games", (req, res) => { /** all */
     res.json( Database.games )
 } )
 
-app.get( "/game/:id", (req, res) => { /** by id */
+app.get( "/game/:id", (req, res) => { /** read by ID */
 
     const {id} = req.params
 
@@ -73,7 +73,7 @@ app.get( "/game/:id", (req, res) => { /** by id */
     }
 } )
 
-app.post( "/game", (req, res) => { /** create resource */
+app.post( "/game", (req, res) => { /** create */
 
     const {name, year, price} = req.body
 
@@ -150,7 +150,7 @@ app.post( "/game", (req, res) => { /** create resource */
     }
 } )
 
-app.delete( "/game/:id", (req, res) => {
+app.delete( "/game/:id", (req, res) => { /* delete by ID */
 
     const {id} = req.params
 
@@ -205,10 +205,77 @@ app.delete( "/game/:id", (req, res) => {
     }
 } )
 
-app.put( "/game/:id", (req, res) => {
+app.put( "/game/:id", (req, res) => { /* update by ID */
 
-    
+    const {name, year, price} = req.body
+    const {id} = req.params
+
+    if( Number.isNaN(id) )
+    {
+        res.statusCode = 400 /** requisição inválida */
+
+        res.json(
+            {
+                message: "Requisição inválida (Bad Request)",
+                success: false,
+                statusCode: 400,
+                data: null
+            }
+        )
+        return false
+    }
+    else
+    {
+        const _id = parseInt( id )
+        const old = Database.games.find( game => game.id === _id )
+        console.log(old, id, _id)
+
+        if( old != undefined )
+        {
+            if( name != undefined && name != "" )
+            {
+                old.name = name
+            }
+
+            if( year != undefined && !Number.isNaN( year ) && year.length === 4 )
+            {
+                old.year = year
+            }
+
+            if( price != undefined && !Number.isNaN( price ) )
+            {
+                old.price = price
+            }
+
+            res.statusCode = 200 /** requisição concluída */
+
+            res.json(
+                {
+                    message: "Recurso atualizado",
+                    success: true,
+                    statusCode: 200,
+                    data: Database.games.find(game => game.id === old.id)
+                }
+            )
+            return true
+        }
+        else
+        {
+            res.statusCode = 404 /** requisição inválida */
+
+            res.json(
+                {
+                    message: "Recurso não encontrado (Not Found)",
+                    success: false,
+                    statusCode: 404,
+                    data: null
+                }
+            )
+            return false
+        }
+    }
+
 } )
 
-/** listen */
+/** server */
 app.listen( 8080, () => console.log("running...") )
