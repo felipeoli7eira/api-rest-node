@@ -150,5 +150,65 @@ app.post( "/game", (req, res) => { /** create resource */
     }
 } )
 
+app.delete( "/game/:id", (req, res) => {
+
+    const {id} = req.params
+
+    if( Number.isNaN( id ) )
+    {
+        res.statusCode = 400 /** requisição inválida */
+
+        res.json(
+            {
+                message: "Requisição inválida (Bad Request)",
+                success: false,
+                statusCode: 400,
+                data: null
+            }
+        )
+        return false
+    }
+    else
+    {
+        let intID = parseInt( id )
+
+        let game = Database.games.findIndex( game => game.id === intID ) // true: 0 || 0 > ... false: -1
+
+        if( game === -1 )
+        {
+            res.statusCode = 404 /** Recurso não encontrado (Not Found) */
+            res.json(
+                {
+                    message: "Recurso não encontrado (Not Found)",
+                    success: false,
+                    statusCode: 404,
+                    data: null
+                }
+            )
+            return false
+        }
+        else
+        {
+            res.statusCode = 200 /** Requisição bem sucedida */
+
+            Database.games.splice(game, 1)
+            res.json(
+                {
+                    message: "Recurso deletado",
+                    success: true,
+                    statusCode: 200,
+                    data: game.id
+                }
+            )
+            return true
+        }
+    }
+} )
+
+app.put( "/game/:id", (req, res) => {
+
+    
+} )
+
 /** listen */
 app.listen( 8080, () => console.log("running...") )
